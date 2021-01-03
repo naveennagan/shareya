@@ -1,6 +1,6 @@
 if(document){
 document.addEventListener("DOMContentLoaded", function(event) {
-    fetch('http://localhost:3737/facebook/profile')
+    fetch('https://localhost:3737/facebook/profile')
         .then(response => response.json())
         .then(data => renderProfilePic(data));
 

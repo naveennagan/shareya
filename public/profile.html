@@ -1,14 +1,180 @@
 <html>
-  <head>
+<head>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+</head>
+<body>
 
-  </head>
-  <body>
-      <div>
-           <h1>Facebook</h1>
-           <h1>You are now logged in!</h1>
-           <div id="image"></div>
-      </div>
-      <script type="text/javascript" src="/profile.js"></script>    
-  </body>
+  
+<div id="fb-root"></div>
+<script type="text/javascript" src="/profile.js"></script> 
+<script>
 
+var appId = '1335478790143022';
+// appId = '1131351154004403';
+
+window.fbAsyncInit = function () {
+    FB.init({
+        appId: appId,
+        status: true, // check login status
+        cookie: true, // enable cookies to allow the server to access the session
+        xfbml: true  // parse XFBML
+    });
+
+
+    var options = {
+        scope: 'manage_pages, publish_stream'
+    };
+
+    FB.Event.subscribe('auth.authResponseChange', function (response) {
+        if (response.status === 'connected') {
+            testAPI();
+        } else if (response.status === 'not_authorized') {
+            FB.login(function () {
+            }, options);
+        } else {
+            FB.login(function () {
+            }, options);
+        }
+    });
+};
+
+// Load the SDK asynchronously
+(function (d) {
+    var js, id = 'facebook-jssdk', ref = d.getElementsByTagName('script')[0];
+    if (d.getElementById(id)) {
+        return;
+    }
+    js = d.createElement('script');
+    js.id = id;
+    js.async = true;
+    js.src = "//connect.facebook.net/en_US/all.js";
+    ref.parentNode.insertBefore(js, ref);
+}(document));
+
+// Here we run a very simple test of the Graph API after login is successful.
+// This testAPI() function is only called in those cases.
+
+function testAPI() {
+    console.log('Welcome!  Fetching your information.... ');
+    FB.api('/me', function (response) {
+        console.log('Good to see you, ' + response.name + '.');
+    });
+}
+
+function error(msg) {
+    document.getElementById('result').innerHTML = 'Error: ' + msg;
+}
+
+function postApi(place) {
+
+    var myPageID = '151505491547444';     
+    var targetPageName = 'Empty Resume Students Union';
+    var accessToken = null;
+
+    FB.api(
+        'https://graph.facebook.com/me/accounts',
+        function (response) {
+            if (!response || response.error) {
+                console.log(response);
+                error('Error occured');
+            } else {
+                console.log(response);
+                accessToken = response.data[0].access_token;
+                
+                if (accessToken) {
+                    FB.api(
+                        'https://graph.facebook.com/' + myPageID + '/photos',
+                        'post',
+                        {
+                            url: place.url,
+                            access_token: accessToken,
+                            message: place.message
+                        },
+                        function (response) {
+                            if (!response || response.error) {
+                                console.log(response);
+                                error('Error occured');
+                            } else {
+                                console.log(response);
+                                alert("PostId: " + response.id);
+                            }
+                        }
+                    );
+                }
+                else {
+                    error("Page not found in the accounts: " + targetPageName);
+                }
+            }
+        }
+    );
+
+}
+
+
+function logout() {
+    FB.logout();
+}
+
+
+$(document).ready(function () {
+    $("#logout").click(function () {
+        logout();
+    });
+    $("#place1").click(function () {
+        postApi(places[0]);
+    });
+    $("#place2").click(function () {
+        postApi(places[1]);
+    });
+});
+var places= [
+    { 
+        url: "https://static01.nyt.com/images/2019/12/08/realestate/08selling-NJ/oakImage-1574182343500-superJumbo.jpg",
+        message: "New York"
+    },
+    { 
+        url: "https://images.realty.mx/b5642a220eec516a0ea36451fad5bd89/images/assets/987657_4654642.jpg",
+        message: "Dallas"
+    }
+]
+
+</script>
+
+<!--
+  Below we include the Login Button social plugin. This button uses the JavaScript SDK to
+  present a graphical Login button that triggers the FB.login() function when clicked. -->
+
+<fb:login-button show-faces="true" width="200" max-rows="1"></fb:login-button>
+<h1>Places</h1>
+<div id="result"></div>
+<div id="places" style="
+display: flex;
+">
+    <div id="place1" style="
+    display: flex;
+    flex-direction: column;
+    margin: 10px;
+">
+        <h1>New York</h1>
+        <img style= "
+        height: 300px;
+        width: 300px;
+    " 
+        src="https://static01.nyt.com/images/2019/12/08/realestate/08selling-NJ/oakImage-1574182343500-superJumbo.jpg"/>
+        <button id="place1" style="width: 100px;margin: 5px;">Share</button>
+    </div>
+    <div id="place2" style="
+    display: flex;
+    flex-direction: column;
+    margin: 10px;
+">
+        <h1>Dallas</h1>
+        <img  <img style= "
+        height: 300px;
+        width: 300px;
+    "  src="https://images.realty.mx/b5642a220eec516a0ea36451fad5bd89/images/assets/987657_4654642.jpg" />
+        <button id="place1" style="width: 100px; margin: 5px;">Share</button>
+    </div>
+</div>
+</body>
 </html>

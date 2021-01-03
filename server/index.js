@@ -4,8 +4,13 @@ const exphbs = require('express-handlebars');
 
 var appId = "1335478790143022";
 var appSecret = "4f510c4d36b03f0dc08818f122461ab5";
+const https = require('https')
+const fs = require('fs')
 var path = require('path');
+
 var user = {};
+var accessToken = '';
+var refreshToken = '';
 
 var passport = require("passport");
 
@@ -28,11 +33,13 @@ app.use(passport.session())
       {
         clientID: appId,
         clientSecret: appSecret,
-        callbackURL: "http://localhost:3737/auth/facebook/callback",
+        callbackURL: "https://localhost:3737/auth/facebook/callback",
         profileFields: ['id', 'displayName', 'name', 'gender', 'picture.type(large)']
       },
       function(accessToken, refreshToken, profile, cb) {
         user = profile;
+        accessToken = accessToken;
+        refreshToken = refreshToken;
         return cb(null, profile)
       }
     )
@@ -54,6 +61,19 @@ app.get("/profile", (req, res) => {
     res.redirect("/profile.html");
 });
 
+app.get('/graph/photos', function (req, res) {
+    var hsResponse = request({
+        url: 'https://graph.facebook.com/me/photos',
+        method: 'GET',
+        qs: {
+            "access_token": req.user.facebook.token
+        },
+    }, function (error, response, body) {
+        res.setHeader('Content-Type', 'application/json');
+        res.send(body);
+    });
+});
+
 app.get("/facebook/profile",(req,res)=>{
     res.send(user);
 })
@@ -64,6 +84,10 @@ app.set('view engine', 'handlebars');
 
 app.use(express.static(path.join(__dirname, '../public/')));
 
-app.listen(3737,()=>{
-    console.log("Listenting on 3737");
-})
+const httpsOptions = {
+    key: fs.readFileSync('./key.pem'),
+    cert: fs.readFileSync('./cert.pem')
+  }
+  const server = https.createServer(httpsOptions, app).listen(3737, () => {
+    console.log('server running at ' + 3737)
+  })
