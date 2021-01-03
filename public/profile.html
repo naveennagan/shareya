@@ -65,6 +65,17 @@ function error(msg) {
     document.getElementById('result').innerHTML = 'Error: ' + msg;
 }
 
+function postShare(place) {
+    FB.ui({
+  method: 'share',
+  href: place.url,
+    }, function(response){
+        console.log(response);
+        alert("Shared");
+    });
+}
+
+
 function postApi(place) {
 
     var myPageID = '151505491547444';     
@@ -126,7 +137,11 @@ $(document).ready(function () {
     $("#place2").click(function () {
         postApi(places[1]);
     });
+    $("#place3").click(function () {
+        postShare(places[2]);
+    });
 });
+
 var places= [
     { 
         url: "https://static01.nyt.com/images/2019/12/08/realestate/08selling-NJ/oakImage-1574182343500-superJumbo.jpg",
@@ -135,6 +150,10 @@ var places= [
     { 
         url: "https://images.realty.mx/b5642a220eec516a0ea36451fad5bd89/images/assets/987657_4654642.jpg",
         message: "Dallas"
+    },
+    {
+        url: "https://specials-images.forbesimg.com/imageserve/5ecd7e28b0807d0007b48ca8/960x0.jpg?fit=scale",
+        message: "LA"
     }
 ]
 
@@ -174,6 +193,19 @@ display: flex;
         width: 300px;
     "  src="https://images.realty.mx/b5642a220eec516a0ea36451fad5bd89/images/assets/987657_4654642.jpg" />
         <button id="place1" style="width: 100px; margin: 5px;">Share</button>
+    </div>
+
+    <div id="place3" style="
+    display: flex;
+    flex-direction: column;
+    margin: 10px;
+">
+        <h1>LA</h1>
+        <img  <img style= "
+        height: 300px;
+        width: 300px;
+    "  src="https://specials-images.forbesimg.com/imageserve/5ecd7e28b0807d0007b48ca8/960x0.jpg?fit=scale" />
+        <button id="place1" style="width: 100px; margin: 5px;">Dialog</button>
     </div>
 </div>
 </body>
